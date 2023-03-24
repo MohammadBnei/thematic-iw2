@@ -1,5 +1,6 @@
+import { status } from '@grpc/grpc-js';
 import { Controller, Get } from '@nestjs/common';
-import { GrpcMethod } from '@nestjs/microservices';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { Task } from '@prisma/client';
 import { AppService } from './app.service';
 import {
@@ -60,7 +61,7 @@ export class AppController {
     });
 
     return {
-      task: this.toPb(task),
+      task: task && this.toPb(task),
     };
   }
 
@@ -83,17 +84,24 @@ export class AppController {
       data: update,
     });
 
-    return { task: this.toPb(task) };
+    return { task: task && this.toPb(task) };
   }
 
   @GrpcMethod('TaskService')
   async Delete(req: DeleteRequest): Promise<DeleteResponse> {
-    const { id } = req;
+    try {
+      const { id } = req;
 
-    const task = await this.appService.deleteTask({
-      id: +id,
-    });
+      const task = await this.appService.deleteTask({
+        id: +id,
+      });
 
-    return { task: this.toPb(task) };
+      return { task: task && this.toPb(task) };
+    } catch (error) {
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: error,
+      });
+    }
   }
 }
