@@ -4,3 +4,5 @@ managed:
 plugins:
   - plugin: buf.build/community/timostamm-protobuf-ts
     out: ../server/src/stub
+  - plugin: buf.build/community/timostamm-protobuf-ts
+    out: ../front/src/lib/stub
