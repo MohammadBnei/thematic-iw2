@@ -1,3 +1,4 @@
+import type { Task } from '$lib/stub/task/task';
 import { fail, type Actions } from '@sveltejs/kit';
 
 export const actions: Actions = {
@@ -16,10 +17,17 @@ export const actions: Actions = {
 				dueDate
 			});
 
+			const task: Task = res.response.task;
+			
 			return {
 				success: true,
 				data: {
-					task: res.response.task
+					task: {
+						id: task.id,
+						dueDate: task?.dueDate,
+						done: task?.done,
+						description: task?.description
+					}
 				}
 			};
 		} catch (error) {
